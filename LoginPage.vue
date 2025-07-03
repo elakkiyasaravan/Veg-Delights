@@ -1,269 +1,592 @@
 <template>
-  <div>
-    <!-- Header -->
-    <header class="site-header">
-      <h1 class="brand">🌱 Veg Delights</h1>
+  <div class="page">
+    <!-- HEADER -->
+    <header class="page-header">
+      <div class="header-content">
+        <h1 class="logo-text">GreenBite <span class="logo-leaf">🍃</span></h1>
+        <p class="tagline">Nourish your body, delight your senses</p>
+      </div>
     </header>
 
-    <!-- Login Content -->
-    <div class="login-container">
-      <div class="login-card">
-        <!-- Info Panel -->
-        <div class="info-panel">
-          <h1>Hi! Welcome to Veg Delights</h1>
-          <p class="quote">“Eat fresh, feel premium.”</p>
-          <p>Order the freshest vegetables delivered to your door.</p>
+    <!-- MAIN LOGIN BOX -->
+    <main class="login-wrapper">
+      <section class="login-card">
+        <!-- QUOTES SIDE -->
+        <div class="quotes-side">
+          <div class="quote-pattern"></div>
+          <transition-group name="quote-rotate" tag="div" class="quotes">
+            <div v-for="(q, index) in visibleQuote" 
+                 :key="q" 
+                 class="quote-item"
+                 v-show="currentIndex === index">
+              <p class="quote">“{{ q }}”</p>
+              <p class="quote-author">— {{ authors[index] }}</p>
+            </div>
+          </transition-group>
+          <div class="decorative-leaf"></div>
         </div>
 
-        <!-- Login Form Panel -->
-        <div class="form-panel">
-          <h2>Sign In</h2>
-          <form @submit.prevent="handleLogin">
-            <input v-model="username" type="text" placeholder="Username" required />
-            <input v-model="password" type="password" placeholder="Password" required />
-
-            <div class="options">
-              <label><input type="checkbox" v-model="rememberMe" /> Remember me</label>
-              <a href="#" class="forgot">Forgot?</a>
+        <!-- LOGIN FORM SIDE -->
+        <div class="form-side">
+          <div class="form-header">
+            <h2 class="form-heading">Welcome Back <span class="heading-icon">🌿</span></h2>
+            <div class="header-divider"></div>
+          </div>
+          
+          <form @submit.prevent="login" class="form-body">
+            <div class="input-group">
+              <label for="email">Email</label>
+              <input v-model="email" 
+                     id="email" 
+                     type="email" 
+                     placeholder="your@email.com" 
+                     required 
+                     class="input-field" />
+              <span class="input-icon">✉️</span>
             </div>
-
-            <button type="submit" class="btn">Login</button>
+            
+            <div class="input-group">
+              <label for="username">Username</label>
+              <input v-model="username" 
+                     id="username" 
+                     placeholder="username" 
+                     required 
+                     class="input-field" />
+              <span class="input-icon">👤</span>
+            </div>
+            
+            <div class="input-group">
+              <label for="password">Password</label>
+              <input v-model="password" 
+                     id="password" 
+                     type="password" 
+                     placeholder="••••••••" 
+                     required 
+                     class="input-field" />
+              <span class="input-icon">🔒</span>
+            </div>
+            
+            <div class="row">
+              <label class="checkbox-container">
+                <input type="checkbox" v-model="remember" />
+                <span class="checkmark"></span>
+                Remember me
+              </label>
+              <router-link to="/forgot-password" class="forgot-link">Forgot password?</router-link>
+            </div>
+            
+            <AnimatedButton class="login-button">
+              <span class="button-text">Login</span>
+              <span class="button-icon">→</span>
+            </AnimatedButton>
           </form>
-          <p class="signup">No account? <a href="#">Sign Up</a></p>
+          
+          <div class="signup-prompt">
+            <p>Don't have an account?</p>
+            <router-link to="/signup" class="signup-link">
+              Sign up <span class="link-arrow">↗</span>
+            </router-link>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="page-footer">
+      <div class="footer-content">
+        <p class="copyright">© 2025 GreenBite – Eat clean, stay green.</p>
+        <div class="footer-links">
+          <router-link to="/privacy">Privacy</router-link>
+          <router-link to="/terms">Terms</router-link>
+          <router-link to="/contact">Contact</router-link>
         </div>
       </div>
-
-      <!-- Background images -->
-      <img src="@/assets/a.jpeg" class="bg-img bg-img-left" alt="veg bg" />
-      <img src="@/assets/d.jpeg" class="bg-img bg-img-right" alt="veg bg" />
-    </div>
-
-    <!-- Footer -->
-    <footer class="site-footer">
-      <p>© 2025 Veg Delights. Eat fresh, live happy!</p>
     </footer>
   </div>
 </template>
 
-<script>
-import { defineComponent } from 'vue';
-import { mapActions } from 'vuex';
-import { useRouter } from 'vue-router';
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import AnimatedButton from '@/components/AnimatedButton.vue'
+import bgImg from '@/assets/images/ig4.jpeg'
 
-export default defineComponent({
-  name: 'LoginPage',
-  data() {
-    return {
-      username: '',
-      password: '',
-      rememberMe: false
-    };
-  },
-  setup() {
-    const router = useRouter();
-    return { router };
-  },
-  methods: {
-    ...mapActions(['login']),
-    async handleLogin() {
-      try {
-        await this.login({ username: this.username });
-        this.router.push('/order');
-      } catch (error) {
-        console.error('Login failed:', error);
-      }
-    }
-  }
-});
+const router = useRouter()
+const email = ref('')
+const username = ref('')
+const password = ref('')
+const remember = ref(false)
+
+const login = () => {
+  localStorage.setItem('auth', 'true')
+  router.push('/order')
+}
+
+const quotes = [
+  'Eat food, not too much, mostly plants.',
+  'Good food is the foundation of genuine happiness.',
+  'Healthy eating starts with you.',
+  'Let food be thy medicine and medicine be thy food.',
+]
+const authors = [
+  'Michael Pollan',
+  'Auguste Escoffier',
+  'Our Philosophy',
+  'Hippocrates'
+]
+const visibleQuote = ref(quotes)
+const currentIndex = ref(0)
+
+onMounted(() => {
+  setInterval(() => {
+    currentIndex.value = (currentIndex.value + 1) % quotes.length
+  }, 4000)
+})
 </script>
 
 <style scoped>
-/* Full-page layout */
-.login-container {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
+.page {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #388E3C, #FBC02D);
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  font-family: 'Inter', sans-serif;
   overflow: hidden;
+  background: transparent;
 }
 
-/* Background images */
-.bg-img {
+.page::before {
+  content: '';
   position: absolute;
-  width: 60%;
-  height: auto;
-  opacity: 0.07;
-  z-index: 1;
-  object-fit: cover;
-  border-radius: 50%;
+  inset: 0;
+  background-image: url('@/assets/images/ig4.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* HEADER */
+.page-header {
+  text-align: center;
+  padding: 2rem 0 1rem;
+  background: transparent;
+  position: relative;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.logo-text {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #065f46;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-leaf {
+  font-size: 1.8rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.tagline {
+  font-size: 0.9rem;
+  color: #334155;
+  margin-top: 0.5rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+/* FOOTER */
+.page-footer {
+  text-align: center;
+  padding: 1.5rem 0;
+  background: transparent;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.copyright {
+  color: #0f172a;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.footer-links a {
+  color: #475569;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #065f46;
+}
+
+/* MAIN LOGIN WRAPPER */
+.login-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* LOGIN CARD CONTAINER */
+.login-card {
+  display: flex;
+  width: clamp(320px, 90%, 1000px);
+  min-height: 520px;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    inset 0 4px 12px rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.login-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  padding: 2px;
+  background: linear-gradient(135deg, #065f46, #10b981);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
   pointer-events: none;
 }
-.bg-img-left { top: 5%; left: -10%; }
-.bg-img-right { bottom: 5%; right: -10%; }
 
-/* Card layout */
-.login-card {
+/* LEFT SIDE - QUOTES */
+.quotes-side {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  background: linear-gradient(135deg, rgba(6, 95, 70, 0.9), rgba(16, 185, 129, 0.85));
   position: relative;
-  z-index: 2;
-  width: 90%;
-  max-width: 900px;
-  display: flex;
-  border-radius: 16px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-}
-.info-panel {
-  flex: 1;
-  padding: 2.5rem;
-  background: #E8F5E9;
-  color: #2E7D32;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-.info-panel h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-.info-panel .quote {
-  font-style: italic;
-  color: #558B2F;
-  margin-bottom: 1rem;
-}
-.form-panel {
-  flex: 1;
-  padding: 2.5rem;
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.form-panel h2 {
-  text-align: center;
-  color: #333;
-  font-size: 1.75rem;
-  margin-bottom: 1.5rem;
-}
-.form-panel input {
-  width: 100%;
-  margin-bottom: 1rem;
-  padding: 0.9rem;
-  border: 2px solid #C8E6C9;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
-}
-.form-panel input:focus {
-  border-color: #43A047;
-  outline: none;
-  box-shadow: 0 6px 12px rgba(67, 160, 71, 0.2);
 }
 
-/* Options row */
-.options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.25rem;
-}
-.options label {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-  color: #555;
-}
-.options label input[type="checkbox"] {
-  margin-right: 0.4rem;
-  width: 16px;
-  height: 16px;
-  accent-color: #388E3C;
-}
-.options .forgot {
-  font-size: 0.9rem;
-  color: #388E3C;
-  text-decoration: none;
+.quote-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.5;
 }
 
-/* Submit button */
-.btn {
+.quotes {
+  position: relative;
   width: 100%;
-  padding: 0.85rem;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #43A047, #66BB6A);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.quote-item {
+  position: absolute;
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+}
+
+.quote {
+  font-size: 1.6rem;
+  line-height: 1.6;
   color: white;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  font-weight: 500;
+  font-style: italic;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Sign-up text */
-.signup {
-  margin-top: 1rem;
-  text-align: center;
+.quote-author {
   font-size: 0.95rem;
-}
-.signup a {
-  color: #2E7D32;
-  text-decoration: none;
-  font-weight: bold;
+  color: rgba(255,255,255,0.8);
+  font-style: normal;
 }
 
-/* Header + Footer */
-.site-header,
-.site-footer {
-  position: fixed;
-  left: 0;
-  width: 100%;
-  padding: 0.8rem 1.2rem;
+.decorative-leaf {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  font-size: 2.5rem;
+  opacity: 0.15;
+  z-index: 1;
+  animation: float 4s ease-in-out infinite;
+}
+
+/* RIGHT SIDE - FORM */
+.form-side {
+  flex: 1;
+  padding: 3rem 2.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.form-heading {
+  font-size: 1.8rem;
+  color: #065f46;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 3;
-  backdrop-filter: blur(4px);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  color: #fff;
-  font-family: inherit;
+  gap: 0.5rem;
 }
-.site-header { top: 0; }
-.site-footer { bottom: 0; }
-.site-header .brand {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+
+.heading-icon {
+  font-size: 1.5rem;
 }
-.site-footer p {
-  margin: 0;
+
+.header-divider {
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #065f46, #10b981);
+  margin: 0 auto;
+  border-radius: 3px;
+}
+
+.form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.input-group {
+  position: relative;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
   font-size: 0.9rem;
+  color: #334155;
   font-weight: 500;
 }
 
-/* Responsive */
+.input-field {
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 2.5rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background-color: #f8fafc;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  background-color: white;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(10%);
+  font-size: 1.1rem;
+  opacity: 0.6;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.5rem 0 1rem;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #475569;
+  user-select: none;
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: relative;
+  height: 18px;
+  width: 18px;
+  margin-right: 0.75rem;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+  background-color: #f1f5f9;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 4px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.forgot-link {
+  font-size: 0.85rem;
+  color: #4f46e5;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgot-link:hover {
+  color: #4338ca;
+  text-decoration: underline;
+}
+
+.login-button {
+  margin-top: 0.5rem;
+}
+
+.signup-prompt {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.signup-link {
+  color: #065f46;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.signup-link:hover {
+  color: #064e3b;
+}
+
+.link-arrow {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.signup-link:hover .link-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* ANIMATIONS */
+.quote-rotate-enter-active,
+.quote-rotate-leave-active {
+  transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  position: absolute;
+}
+.quote-rotate-enter-from {
+  opacity: 0;
+  transform: rotateY(90deg);
+}
+.quote-rotate-leave-to {
+  opacity: 0;
+  transform: rotateY(-90deg);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .login-card {
     flex-direction: column;
-    margin: 4rem 1rem; /* room for header/footer */
+    min-height: auto;
   }
-  .info-panel,
-  .form-panel {
-    padding: 1.5rem;
+
+  .quotes-side,
+  .form-side {
+    width: 100%;
+    padding: 2rem;
   }
-  .info-panel h1 {
+
+  .quotes-side {
+    min-height: 250px;
+  }
+
+  .quote {
+    font-size: 1.3rem;
+  }
+
+  .form-heading {
     font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .forgot-link {
+    margin-top: 0.5rem;
   }
 }
 </style>

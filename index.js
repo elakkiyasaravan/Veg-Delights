@@ -1,23 +1,112 @@
-import { createStore } from 'vuex';
-export default createStore({
-  state: () => ({
-    user: null,
-    cart: [],
-    bookings: [],           // new
-    feedbacks: []           // new
-  }),
-  mutations: {
-    SET_USER(state, user) { state.user = user; },
-    ADD_TO_CART(state, item) { state.cart.push(item); },
-    CLEAR_CART(state) { state.cart = []; },                // new
-    ADD_BOOKING(state, booking) { state.bookings.push(booking); },  // new
-    ADD_FEEDBACK(state, fb) { state.feedbacks.push(fb); }            // new
+import { createRouter, createWebHistory } from 'vue-router';
+
+// ======================
+// Component Imports (Using Vue CLI '@' alias)
+// ======================
+import LoginPage from '@/components/views/LoginPage.vue';
+import SignUpPage from '@/components/views/SignUpPage.vue';
+import OrderPage from '@/components/views/OrderPage.vue';
+import PaymentPage from '@/components/views/PaymentPage.vue';
+import FeedbackPage from '@/components/views/FeedbackPage.vue';
+import TableBookingPage from '@/components/views/TableBookingPage.vue';
+
+// ======================
+// Route Definitions
+// ======================
+const routes = [
+  {
+    path: '/',
+    name: 'Login',
+    component: LoginPage,
+    meta: {
+      guestOnly: true,
+      title: 'Login'
+    }
   },
-  actions: {
-    login({ commit }, payload) { commit('SET_USER', payload.username); },
-    addToCart({ commit }, item) { commit('ADD_TO_CART', item); },
-    proceedToPayment({ commit }) { commit('CLEAR_CART'); },         // new
-    submitBooking({ commit }, booking) { commit('ADD_BOOKING', booking); },  // new
-    submitFeedback({ commit }, feedback) { commit('ADD_FEEDBACK', feedback); } // new
+  {
+    path: '/signup',
+    name: 'SignUp',
+    component: SignUpPage,
+    meta: {
+      guestOnly: true,
+      title: 'Sign Up'
+    }
+  },
+  {
+    path: '/order',
+    name: 'Order',
+    component: OrderPage,
+    meta: {
+      requiresAuth: true,
+      title: 'Order'
+    }
+  },
+  {
+    path: '/payment',
+    name: 'Payment',
+    component: PaymentPage,
+    meta: {
+      requiresAuth: true,
+      title: 'Payment'
+    }
+  },
+  {
+    path: '/feedback',
+    name: 'Feedback',
+    component: FeedbackPage,
+    meta: {
+      requiresAuth: true,
+      title: 'Feedback'
+    }
+  },
+  {
+    path: '/booking',
+    name: 'Booking',
+    component: TableBookingPage,
+    meta: {
+      requiresAuth: true,
+      title: 'Table Booking'
+    }
+  },
+  // Fallback for unknown routes
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
+  }
+];
+
+// ======================
+// Create Router Instance
+// ======================
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' };
+    }
+    return savedPosition || { top: 0, behavior: 'smooth' };
   }
 });
+
+// ======================
+// Navigation Guard
+// ======================
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('auth') === 'true';
+
+  // Set page title
+  document.title = to.meta.title ? `${to.meta.title} | Veg App` : 'Veg App';
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return next({ name: 'Login', query: { redirect: to.fullPath }, replace: true });
+  }
+
+  if (to.meta.guestOnly && isAuthenticated) {
+    return next({ name: 'Order', replace: true });
+  }
+
+  next();
+});
+
+export default router;

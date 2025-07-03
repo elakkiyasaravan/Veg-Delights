@@ -1,19 +1,25 @@
 <template>
-  <div class="card">
-    <img :src="item.imageUrl" alt="food" />
-    <h3>{{ item.name }}</h3>
-    <p>₹{{ item.price }}</p>
-    <button @click="$emit('order', item)">Add</button>
+  <div class="card fade-in" @click="$emit('add')">
+    <img :src="food.img" alt="food" />
+    <h3>{{ food.name }}</h3>
+    <p class="price">₹ {{ food.price }}</p>
+    <div class="stars">⭐️ {{ food.rating }}</div>
   </div>
 </template>
 
 <script>
-export default { name: 'FoodCard', props: { item: Object } };
+export default { props:{ food:Object } };
 </script>
 
 <style scoped>
-.card { width: 160px; background: #fff; border-radius: 8px; padding: 0.8rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.card img { width: 100%; height: 100px; object-fit: cover; border-radius: 6px; }
-button { margin-top: 0.4rem; padding: 0.4rem 0.8rem; border: none; background: #66BB6A; color: #fff; border-radius: 4px; cursor: pointer; }
-button:hover { opacity: 0.9; }
+.card {
+  background:#fff; border-radius:12px; padding:1rem; box-shadow:0 4px 8px rgba(0,0,0,0.1);
+  display:flex; flex-direction:column; align-items:center; cursor:pointer; transition:transform 0.3s;
+}
+.card:hover { transform:translateY(-6px); }
+.card img { width:100%; height:120px; object-fit:cover; border-radius:8px; }
+.price { font-weight:600; margin:0.5rem 0; }
+.stars { color:#facc15; }
+.fade-in { animation:slideUp 0.4s ease forwards; }
+@keyframes slideUp { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
 </style>
